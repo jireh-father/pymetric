@@ -52,6 +52,9 @@ class LinearHead(nn.Module):
         global_feat = self.pool_layer(features)
         if self.pool_type != "identity":
             global_feat = global_feat[..., 0, 0]
+        print(global_feat.shape)
+        print(self.embedding_layer)
+        print(self.embedding_layer.shape)
         global_feat = self.embedding_layer(global_feat)
         #if not self.training: return global_feat
         # training
