@@ -40,7 +40,7 @@ class DataSet(torchvision.datasets.folder.ImageFolder):
         # logger.info("Constructing dataset from {}...".format(split))
         # self._data_path, self._split = data_path, split
         # self._construct_imdb()
-        super(CustomDataset, self).__init__(os.path.join(data_path, split))
+        super(DataSet, self).__init__(os.path.join(data_path, split))
 
     def _construct_imdb(self):
         """Constructs the imdb."""
