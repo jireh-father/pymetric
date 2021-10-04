@@ -1,5 +1,5 @@
 MODEL:
-  TYPE: resnest
+  TYPE: resnest50
   DEPTH: 50
   NUM_CLASSES: 1784
   HEADS:
