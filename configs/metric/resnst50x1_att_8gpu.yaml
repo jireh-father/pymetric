@@ -1,10 +1,10 @@
 MODEL:
   TYPE: resnet50x1
   DEPTH: 50
-  NUM_CLASSES: 96264
+  NUM_CLASSES: 1784
   HEADS:
     NAME: "LinearHead"
-    NUM_CLASSES: 96264
+    NUM_CLASSES: 1784
     IN_FEAT: 512
     REDUCTION_DIM: 512
     POOL_LAYER: "avgpool"
@@ -29,18 +29,18 @@ OPTIM:
   WEIGHT_DECAY: 0.0001
   WARMUP_EPOCHS: 0
 TRAIN:
-  DATASET: landmark
-  SPLIT: train_list.txt
+  DATASET: plant
+  SPLIT: train
   BATCH_SIZE: 1024
   IM_SIZE: 224
   EVAL_PERIOD: 100
   WEIGHTS: ./pretrained/resnet152-1x.pth
 TEST:
-  DATASET: landmark
-  SPLIT: val_list.txt
+  DATASET: plant
+  SPLIT: val
   BATCH_SIZE: 1024
   IM_SIZE: 256
-NUM_GPUS: 8
+NUM_GPUS: 1
 DATA_LOADER:
   NUM_WORKERS: 4
 CUDNN:
