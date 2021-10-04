@@ -91,5 +91,5 @@ class DataSet(torchvision.datasets.folder.ImageFolder):
         # Retrieve the label
         return im, target
 
-    def __len__(self):
-        return len(self._imdb)
+    # def __len__(self):
+    #     return len(self._imdb)
