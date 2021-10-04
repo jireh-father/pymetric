@@ -38,7 +38,7 @@ class DataSet(torchvision.datasets.folder.ImageFolder):
     def __init__(self, data_path, split):
         assert os.path.exists(data_path), "Data path '{}' not found".format(data_path)
         # logger.info("Constructing dataset from {}...".format(split))
-        # self._data_path, self._split = data_path, split
+        self._data_path, self._split = data_path, split
         # self._construct_imdb()
         super(DataSet, self).__init__(os.path.join(data_path, split))
 
