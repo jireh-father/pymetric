@@ -31,14 +31,16 @@ _EIG_VECS = np.array(
 )
 
 
-class DataSet(torch.utils.data.Dataset):
+# class DataSet(torch.utils.data.Dataset):
+class DataSet(torchvision.datasets.folder.ImageFolder):
     """Common dataset."""
 
     def __init__(self, data_path, split):
         assert os.path.exists(data_path), "Data path '{}' not found".format(data_path)
-        logger.info("Constructing dataset from {}...".format(split))
-        self._data_path, self._split = data_path, split
-        self._construct_imdb()
+        # logger.info("Constructing dataset from {}...".format(split))
+        # self._data_path, self._split = data_path, split
+        # self._construct_imdb()
+        super(DataSet, self).__init__(os.path.join(data_path, split))
 
     def _construct_imdb(self):
         """Constructs the imdb."""
@@ -79,15 +81,15 @@ class DataSet(torch.utils.data.Dataset):
     def __getitem__(self, index):
         # Load the image
         try:
-            im = cv2.imread(self._imdb[index]["im_path"])
+            path, target = self.samples[index]
+            im = cv2.imread(path)
             im = im.astype(np.float32, copy=False)
         except:
-            print('error: ', self._imdb[index]["im_path"])
+            print('error: ', path)
         # Prepare the image for training / testing
         im = self._prepare_im(im)
         # Retrieve the label
-        label = self._imdb[index]["class"]
-        return im, label
+        return im, target
 
     def __len__(self):
         return len(self._imdb)
