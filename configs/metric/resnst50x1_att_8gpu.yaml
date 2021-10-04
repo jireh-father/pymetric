@@ -5,7 +5,7 @@ MODEL:
   HEADS:
     NAME: "LinearHead"
     NUM_CLASSES: 1784
-    IN_FEAT: 512
+    IN_FEAT: 2048
     REDUCTION_DIM: 512
     POOL_LAYER: "avgpool"
     CLS_LAYER: "arcface"
