@@ -16,7 +16,7 @@ import metric.core.logging as logging
 import metric.datasets.transforms as transforms
 import torch.utils.data
 from metric.core.config import cfg
-
+import torchvision
 
 logger = logging.get_logger(__name__)
 
