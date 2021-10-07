@@ -45,7 +45,7 @@ class Arcface(nn.Module):
 
         print(cos_theta.shape)
         print(mask.shape)
-        hard_example = cos_theta[mask]
+        hard_example = cos_theta[mask.squeeze(0)]
         with torch.no_grad():
             self.t = target_logit.mean() * 0.01 + (1 - 0.01) * self.t
         cos_theta[mask] = hard_example * (self.t + hard_example)
