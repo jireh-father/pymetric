@@ -37,14 +37,10 @@ class Arcface(nn.Module):
         target_logit = cos_theta[torch.arange(0, features.size(0)), targets].view(-1, 1)
 
         sin_theta = torch.sqrt(1.0 - torch.pow(target_logit, 2))
-        print(target_logit.shape)
         cos_theta_m = target_logit * self.cos_m - sin_theta * self.sin_m  # cos(target+margin)
-        print(cos_theta_m.shape)
         mask = cos_theta > cos_theta_m
         final_target_logit = torch.where(target_logit > self.threshold, cos_theta_m, target_logit - self.mm)
 
-        print(cos_theta.shape)
-        print(mask.shape)
         hard_example = cos_theta[mask]
         with torch.no_grad():
             self.t = target_logit.mean() * 0.01 + (1 - 0.01) * self.t
