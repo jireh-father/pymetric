@@ -104,8 +104,9 @@ def main_multicard(spath, cutno, total_num, MODEL_WEIGHTS):
             #print(feadic)
             if index % 5000 == cutno - 1:
                 print(index, embedding.shape)
-    
-    with open(COMBINE_DIR+spath.split("/")[-1]+"fea.pickle"+'_%d'%cutno, "wb") as fout:
+    output_file = COMBINE_DIR+spath.split("/")[-1]+"fea.pickle"+'_%d'%cutno
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, "wb") as fout:
         pickle.dump(feadic, fout, protocol=2)
 
 
