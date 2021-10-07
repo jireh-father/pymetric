@@ -51,6 +51,7 @@ class Arcface(nn.Module):
         with torch.no_grad():
             self.t = target_logit.mean() * 0.01 + (1 - 0.01) * self.t
         cos_theta[mask] = hard_example * (self.t + hard_example)
+        print(targets)
         cos_theta.scatter_(1, targets.view(-1, 1).long(), final_target_logit)
         pred_class_logits = cos_theta * self._s
         return pred_class_logits
