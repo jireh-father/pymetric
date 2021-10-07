@@ -20,8 +20,8 @@ _SD = [0.225, 0.224, 0.229]
 
 # INFER_DIR = '../../data/eval/query'
 # MODEL_WEIGHTS = 'saved_models/resnest_arc/model_epoch_0100.pyth'
-OUTPUT_DIR = './eval_outputs/'
-COMBINE_DIR = os.path.join(OUTPUT_DIR,"combine_results/")
+# OUTPUT_DIR = './eval_outputs/'
+
 
 
 class MetricModel(torch.nn.Module):
@@ -60,7 +60,7 @@ def extract(imgpath, model):
     return embedding
 
 
-def main(spath, MODEL_WEIGHTS):
+def main(spath, MODEL_WEIGHTS, OUTPUT_PATH):
     #model = builders.build_arch()
     model = builders.MetricModel()
     print(model)
@@ -79,11 +79,12 @@ def main(spath, MODEL_WEIGHTS):
             #print(feadic)
             if index%5000 == 0:
                 print(index, embedding.shape)
-    
-    with open(spath.split("/")[-1]+"fea.pickle", "wb") as fout:
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    # with open(spath.split("/")[-1]+"fea.pickle", "wb") as fout:
+    with open(OUTPUT_PATH, "wb") as fout:
         pickle.dump(feadic, fout, protocol=2)
    
-def main_multicard(spath, cutno, total_num, MODEL_WEIGHTS):
+def main_multicard(spath, cutno, total_num, MODEL_WEIGHTS, OUTPUT_DIR):
     #model = builders.build_arch()
     model = builders.MetricModel()
     print(model)
@@ -104,6 +105,7 @@ def main_multicard(spath, cutno, total_num, MODEL_WEIGHTS):
             #print(feadic)
             if index % 5000 == cutno - 1:
                 print(index, embedding.shape)
+    COMBINE_DIR = os.path.join(OUTPUT_DIR, "combine_results/")
     output_file = COMBINE_DIR+spath.split("/")[-1]+"fea.pickle"+'_%d'%cutno
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "wb") as fout:
@@ -152,7 +154,7 @@ if __name__ == '__main__':
     assert total_card > 0, 'cfg.TOTAL_NUM should larger than 0. ~'
     assert cfg.INFER.CUT_NUM <= total_card, "cfg.CUT_NUM <= cfg.TOTAL_NUM. ~"
     if total_card == 1:
-        main(cfg.INFER.INFER_DIR, cfg.INFER.MODEL_WEIGHTS)
+        main(cfg.INFER.INFER_DIR, cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR)
     else:
-        main_multicard(cfg.INFER.INFER_DIR, cfg.INFER.CUT_NUM, cfg.INFER.TOTAL_NUM, cfg.INFER.MODEL_WEIGHTS)
+        main_multicard(cfg.INFER.INFER_DIR, cfg.INFER.CUT_NUM, cfg.INFER.TOTAL_NUM, cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR)
 

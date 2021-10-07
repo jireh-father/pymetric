@@ -403,6 +403,7 @@ _C.INFER.CUT_NUM = 1
 
 _C.INFER.INFER_DIR = "a"
 _C.INFER.MODEL_WEIGHTS = ""
+_C.INFER.OUTPUT_DIR = ""
 
 # ------------------------------------------------------------------------------------ #
 # Deprecated keys
