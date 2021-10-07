@@ -34,7 +34,7 @@ class Arcface(nn.Module):
 
         cos_theta = cos_theta.clamp(-1, 1)  # for numerical stability
 
-        target_logit = cos_theta[torch.arange(0, features.size(0)), targets]#.view(-1, 1)
+        target_logit = cos_theta[torch.arange(0, features.size(0)), targets].view(-1, 1)
 
         sin_theta = torch.sqrt(1.0 - torch.pow(target_logit, 2))
         print(target_logit.shape)
@@ -45,13 +45,10 @@ class Arcface(nn.Module):
 
         print(cos_theta.shape)
         print(mask.shape)
-        mask = mask.squeeze(0)
-        print(mask.shape)
         hard_example = cos_theta[mask]
         with torch.no_grad():
             self.t = target_logit.mean() * 0.01 + (1 - 0.01) * self.t
         cos_theta[mask] = hard_example * (self.t + hard_example)
-        print(targets)
         cos_theta.scatter_(1, targets.view(-1, 1).long(), final_target_logit)
         pred_class_logits = cos_theta * self._s
         return pred_class_logits

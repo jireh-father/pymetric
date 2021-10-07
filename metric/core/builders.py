@@ -34,6 +34,8 @@ class MetricModel(torch.nn.Module):
         
     def forward(self, x, targets):
         features = self.backbone(x)
+        if targets is None:
+            return features
         return self.head(features, targets=targets)
 
 
