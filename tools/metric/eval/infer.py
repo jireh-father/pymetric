@@ -18,8 +18,8 @@ from util import walkfile
 _MEAN = [0.406, 0.456, 0.485]
 _SD = [0.225, 0.224, 0.229]
 
-INFER_DIR = '../../data/eval/query'
-MODEL_WEIGHTS = 'saved_models/resnest_arc/model_epoch_0100.pyth'
+# INFER_DIR = '../../data/eval/query'
+# MODEL_WEIGHTS = 'saved_models/resnest_arc/model_epoch_0100.pyth'
 OUTPUT_DIR = './eval_outputs/'
 COMBINE_DIR = os.path.join(OUTPUT_DIR,"combine_results/")
 
@@ -60,7 +60,7 @@ def extract(imgpath, model):
     return embedding
 
 
-def main(spath):
+def main(spath, MODEL_WEIGHTS):
     #model = builders.build_arch()
     model = builders.MetricModel()
     print(model)
@@ -83,7 +83,7 @@ def main(spath):
     with open(spath.split("/")[-1]+"fea.pickle", "wb") as fout:
         pickle.dump(feadic, fout, protocol=2)
    
-def main_multicard(spath, cutno, total_num):
+def main_multicard(spath, cutno, total_num, MODEL_WEIGHTS):
     #model = builders.build_arch()
     model = builders.MetricModel()
     print(model)
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     assert total_card > 0, 'cfg.TOTAL_NUM should larger than 0. ~'
     assert cfg.INFER.CUT_NUM <= total_card, "cfg.CUT_NUM <= cfg.TOTAL_NUM. ~"
     if total_card == 1:
-        main(INFER_DIR)
+        main(cfg.INFER.INFER_DIR, cfg.INFER.MODEL_WEIGHTS)
     else:
-        main_multicard(INFER_DIR, cfg.INFER.CUT_NUM, cfg.INFER.TOTAL_NUM )
+        main_multicard(cfg.INFER.INFER_DIR, cfg.INFER.CUT_NUM, cfg.INFER.TOTAL_NUM, cfg.INFER.MODEL_WEIGHTS)
 
