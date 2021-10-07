@@ -31,6 +31,8 @@ class Arcface(nn.Module):
     def forward(self, features, targets):
         # get cos(theta)
         cos_theta = F.linear(F.normalize(features), F.normalize(self.weight))
+
+        print(cos_theta.shape)
         cos_theta = cos_theta.clamp(-1, 1)  # for numerical stability
 
         target_logit = cos_theta[torch.arange(0, features.size(0)), targets].view(-1, 1)
