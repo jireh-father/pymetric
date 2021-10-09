@@ -83,17 +83,24 @@ def main(model_path, output_dir, image_root):
         embeddings = np.array(embeddings)
         print(embeddings.shape)
         kmeans = KMeans(n_clusters=2, random_state=0)
-        kmeans.fit(embeddings)
+        # kmeans.fit(embeddings)
+        # for j, label in enumerate(kmeans.labels_):
+        #     cur_output_dir = os.path.join(output_dir, os.path.basename(class_dir), "{}".format(label))
+        #     os.makedirs(cur_output_dir, exist_ok=True)
+        #     shutil.copy(image_files[j], cur_output_dir)
+
+        pca = PCA(n_components=2)
+        pca_embeddings = pca.fit_transform(embeddings)
+
+        kmeans.fit(pca_embeddings)
         for j, label in enumerate(kmeans.labels_):
             cur_output_dir = os.path.join(output_dir, os.path.basename(class_dir), "{}".format(label))
             os.makedirs(cur_output_dir, exist_ok=True)
             shutil.copy(image_files[j], cur_output_dir)
 
-        pca = PCA(n_components=2)
-        pca_embeddings = pca.fit_transform(embeddings)
-
+        colormap = np.array(['r', 'b'])
         plt.scatter(pca_embeddings[:, 0], pca_embeddings[:, 1],
-                    c=kmeans.labels_,
+                    c=colormap[kmeans.labels_],
                     edgecolor='none', alpha=0.5)
         plt.xlabel('component 1')
         plt.ylabel('component 2')
