@@ -77,8 +77,9 @@ def main(model_path, output_dir, image_root):
             print(i, len(class_dirs), j, len(image_files), class_dir, image_file)
             embedding = extract(image_file, model)
             embeddings.append(embedding)
-
-        kmeans = KMeans(n_clusters=2, random_state=0).fit_predict(np.array(embeddings))
+        embeddings = np.array(embeddings)
+        print(embeddings.shape)
+        kmeans = KMeans(n_clusters=2, random_state=0).fit_predict(embeddings)
 
         for j, label in enumerate(kmeans.labels_):
             cur_output_dir = os.path.join(output_dir, os.path.basename(class_dir), "{}".format(label))
@@ -86,7 +87,7 @@ def main(model_path, output_dir, image_root):
             shutil.copy(image_files[j], cur_output_dir)
 
         pca = PCA(n_components=2)
-        pca_embeddings = pca.fit_transform(np.array(embeddings))
+        pca_embeddings = pca.fit_transform(embeddings)
 
         plt.scatter(pca_embeddings[:, 0], pca_embeddings[:, 1],
                     # c=digits.target,
