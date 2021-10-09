@@ -58,7 +58,7 @@ def extract(imgpath, model):
         input_data = input_data.cuda()
     fea = model(input_data, targets=None)
     fea = pool_layer(fea)
-    embedding = to_numpy(fea)
+    embedding = to_numpy(fea.squeeze())
     # print("fea_shape: ", embedding.shape)
     return embedding
 
