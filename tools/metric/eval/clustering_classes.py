@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 _MEAN = [0.406, 0.456, 0.485]
 _SD = [0.225, 0.224, 0.229]
-
+pool_layer = GeneralizedMeanPoolingP()
 
 class MetricModel(torch.nn.Module):
     def __init__(self):
@@ -47,6 +47,7 @@ def to_numpy(tensor):
 
 
 def extract(imgpath, model):
+
     im = cv2.imread(imgpath)
     im = im.astype(np.float32, copy=False)
     im = preprocess(im)
@@ -55,6 +56,7 @@ def extract(imgpath, model):
     if torch.cuda.is_available():
         input_data = input_data.cuda()
     fea = model(input_data, targets=None)
+    fea = pool_layer(fea)
     embedding = to_numpy(fea)
     # print("fea_shape: ", embedding.shape)
     return embedding
@@ -69,14 +71,14 @@ def main(model_path, output_dir, image_root):
     model.eval()
 
     class_dirs = glob.glob(os.path.join(image_root, "*"))
-    pool_layer = GeneralizedMeanPoolingP()
+
     for i, class_dir in enumerate(class_dirs):
         image_files = glob.glob(os.path.join(class_dir, '*'))
         embeddings = []
         for j, image_file in enumerate(image_files):
             print(i, len(class_dirs), j, len(image_files), class_dir, image_file)
             embedding = extract(image_file, model)
-            embeddings.append(pool_layer(embedding))
+            embeddings.append(embedding)
         embeddings = np.array(embeddings)
         print(embeddings.shape)
         kmeans = KMeans(n_clusters=2, random_state=0).fit_predict(embeddings)
