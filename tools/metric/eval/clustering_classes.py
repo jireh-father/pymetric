@@ -93,9 +93,8 @@ def main(model_path, output_dir, image_root):
         pca_embeddings = pca.fit_transform(embeddings)
 
         plt.scatter(pca_embeddings[:, 0], pca_embeddings[:, 1],
-                    # c=digits.target,
-                    edgecolor='none', alpha=0.5,
-                    cmap=plt.cm.get_cmap('spectral', 10))
+                    c=kmeans.labels_,
+                    edgecolor='none', alpha=0.5)
         plt.xlabel('component 1')
         plt.ylabel('component 2')
         plt.colorbar()
