@@ -11,7 +11,7 @@ import metric.core.builders as builders
 from metric.core.config import cfg
 from linear_head import LinearHead
 import glob
-
+from metric.modeling.layers import GeneralizedMeanPoolingP
 from sklearn.cluster import KMeans
 import shutil
 from sklearn.decomposition import PCA
@@ -69,14 +69,14 @@ def main(model_path, output_dir, image_root):
     model.eval()
 
     class_dirs = glob.glob(os.path.join(image_root, "*"))
-
+    pool_layer = GeneralizedMeanPoolingP()
     for i, class_dir in enumerate(class_dirs):
         image_files = glob.glob(os.path.join(class_dir, '*'))
         embeddings = []
         for j, image_file in enumerate(image_files):
             print(i, len(class_dirs), j, len(image_files), class_dir, image_file)
             embedding = extract(image_file, model)
-            embeddings.append(embedding)
+            embeddings.append(pool_layer(embedding))
         embeddings = np.array(embeddings)
         print(embeddings.shape)
         kmeans = KMeans(n_clusters=2, random_state=0).fit_predict(embeddings)
