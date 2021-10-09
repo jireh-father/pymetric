@@ -82,8 +82,8 @@ def main(model_path, output_dir, image_root):
             embeddings.append(embedding)
         embeddings = np.array(embeddings)
         print(embeddings.shape)
-        kmeans = KMeans(n_clusters=2, random_state=0).fit_predict(embeddings)
-
+        kmeans = KMeans(n_clusters=2, random_state=0)
+        kmeans.fit(embeddings)
         for j, label in enumerate(kmeans.labels_):
             cur_output_dir = os.path.join(output_dir, os.path.basename(class_dir), "{}".format(label))
             os.makedirs(cur_output_dir, exist_ok=True)
