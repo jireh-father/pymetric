@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 _MEAN = [0.406, 0.456, 0.485]
 _SD = [0.225, 0.224, 0.229]
 pool_layer = GeneralizedMeanPoolingP()
+pool_layer.cuda()
 
 class MetricModel(torch.nn.Module):
     def __init__(self):
