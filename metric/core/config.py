@@ -471,7 +471,7 @@ def load_cfg_and_args(description="Config file options."):
     parser = argparse.ArgumentParser(description=description)
     help_s = "Config file location"
     parser.add_argument("--cfg", dest="cfg_file", help=help_s, required=True, type=str)
-    parser.add_argument("--image_root", dest="cfg_file", help=help_s, required=True, type=str)
+    parser.add_argument("--image_root", dest="image_root", help=help_s, required=True, type=str)
     help_s = "See pycls/core/config.py for all options"
     parser.add_argument("opts", help=help_s, default=None, nargs=argparse.REMAINDER)
     if len(sys.argv) == 1:
