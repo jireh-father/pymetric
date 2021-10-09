@@ -99,6 +99,7 @@ def main(model_path, output_dir, image_root):
             shutil.copy(image_files[j], cur_output_dir)
 
         colormap = np.array(['r', 'b'])
+        plt.figure()
         plt.scatter(pca_embeddings[:, 0], pca_embeddings[:, 1],
                     c=colormap[kmeans.labels_],
                     edgecolor='none', alpha=0.5)
