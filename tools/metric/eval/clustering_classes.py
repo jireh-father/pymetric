@@ -15,13 +15,14 @@ from metric.modeling.layers import GeneralizedMeanPoolingP
 from sklearn.cluster import KMeans
 import shutil
 from sklearn.decomposition import PCA
-
+from torch import nn
 import matplotlib.pyplot as plt
+import torch.nn.functional as F
 
 _MEAN = [0.406, 0.456, 0.485]
 _SD = [0.225, 0.224, 0.229]
-pool_layer = GeneralizedMeanPoolingP()
-pool_layer.cuda()
+
+
 
 class MetricModel(torch.nn.Module):
     def __init__(self):
@@ -47,8 +48,7 @@ def to_numpy(tensor):
     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
 
-def extract(imgpath, model):
-
+def extract(imgpath, model, pool_layer):
     im = cv2.imread(imgpath)
     im = im.astype(np.float32, copy=False)
     im = preprocess(im)
@@ -63,7 +63,7 @@ def extract(imgpath, model):
     return embedding
 
 
-def main(model_path, output_dir, image_root, use_pca):
+def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
     model = builders.MetricModel()
     print(model)
     load_checkpoint(model_path, model)
@@ -78,16 +78,15 @@ def main(model_path, output_dir, image_root, use_pca):
         embeddings = []
         for j, image_file in enumerate(image_files):
             print(i, len(class_dirs), j, len(image_files), class_dir, image_file)
-            embedding = extract(image_file, model)
+            embedding = extract(image_file, model, pool_layer)
             embeddings.append(embedding)
         embeddings = np.array(embeddings)
+
+        if use_norm:
+            embeddings = np.linalg.norm(embeddings, axis=1, ord=2)
+
         print(embeddings.shape)
         kmeans = KMeans(n_clusters=2, random_state=0)
-        # kmeans.fit(embeddings)
-        # for j, label in enumerate(kmeans.labels_):
-        #     cur_output_dir = os.path.join(output_dir, os.path.basename(class_dir), "{}".format(label))
-        #     os.makedirs(cur_output_dir, exist_ok=True)
-        #     shutil.copy(image_files[j], cur_output_dir)
         if use_pca:
             pca = PCA(n_components=2)
             embeddings = pca.fit_transform(embeddings)
@@ -153,4 +152,10 @@ if __name__ == '__main__':
     args = config.load_cfg_and_args("Extract feature.")
     config.assert_and_infer_cfg()
     cfg.freeze()
-    main(cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR, args.image_root, args.use_pca)
+
+    if args.pool == "maxpool":
+        pool_layer = nn.AdaptiveMaxPool2d(1)
+    else:
+        pool_layer = GeneralizedMeanPoolingP()
+    pool_layer.cuda()
+    main(cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR, args.image_root, args.use_pca, pool_layer,args.use_norm)
