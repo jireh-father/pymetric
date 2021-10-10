@@ -53,6 +53,8 @@ class LinearHead(nn.Module):
         if self.pool_type != "identity":
             global_feat = global_feat[..., 0, 0]
         global_feat = self.embedding_layer(global_feat)
+        if targets is None:
+            return global_feat
         #if not self.training: return global_feat
         # training
         try:              pred_class_logits = self.classifier(global_feat)
