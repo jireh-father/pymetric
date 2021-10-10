@@ -48,19 +48,38 @@ def to_numpy(tensor):
     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
 
-def extract(imgpath, model, pool_layer):
-    im = cv2.imread(imgpath)
-    im = im.astype(np.float32, copy=False)
-    im = preprocess(im)
-    im_array = np.asarray(im, dtype=np.float32)
+def extract(imgpaths, model, pool_layer, use_norm):
+    imgs = []
+    for imgpath in imgpaths:
+        im = cv2.imread(imgpath)
+        im = im.astype(np.float32, copy=False)
+        im = preprocess(im)
+        imgs += im
+    im_array = np.asarray(imgs, dtype=np.float32)
     input_data = torch.from_numpy(im_array)
     if torch.cuda.is_available():
         input_data = input_data.cuda()
     fea = model(input_data, targets=None)
     fea = pool_layer(fea)
-    embedding = to_numpy(fea.squeeze())
+    fea = fea.squeeze()
+    if use_norm:
+        fea = F.normalize(fea, p=2, dim=1)
+    embeddings = to_numpy(fea.squeeze())
     # print("fea_shape: ", embedding.shape)
-    return embedding
+
+    return embeddings
+#     im = cv2.imread(imgpath)
+#     im = im.astype(np.float32, copy=False)
+#     im = preprocess(im)
+#     im_array = np.asarray(im, dtype=np.float32)
+#     input_data = torch.from_numpy(im_array)
+#     if torch.cuda.is_available():
+#         input_data = input_data.cuda()
+#     fea = model(input_data, targets=None)
+#     fea = pool_layer(fea)
+#     embedding = to_numpy(fea.squeeze())
+#     # print("fea_shape: ", embedding.shape)
+#     return embedding
 
 
 def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
@@ -75,16 +94,17 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
 
     for i, class_dir in enumerate(class_dirs):
         image_files = glob.glob(os.path.join(class_dir, '*'))
-        embeddings = []
-        for j, image_file in enumerate(image_files):
-            print(i, len(class_dirs), j, len(image_files), class_dir, image_file)
-            embedding = extract(image_file, model, pool_layer)
-            embeddings.append(embedding)
-        embeddings = np.array(embeddings)
+        # embeddings = []
+        # for j, image_file in enumerate(image_files):
+        #     print(i, len(class_dirs), j, len(image_files), class_dir, image_file)
+        #     embedding = extract(image_file, model, pool_layer)
+        #     embeddings.append(embedding)
+        # embeddings = np.array(embeddings)
+        embeddings = extract(image_files, model, pool_layer, use_norm)
 
-        print(embeddings.shape)
-        if use_norm:
-            embeddings = np.linalg.norm(embeddings, axis=0, ord=2)
+        # print(embeddings.shape)
+        # if use_norm:
+        #     embeddings = np.linalg.norm(embeddings, ord=2)
 
         print(embeddings.shape)
         kmeans = KMeans(n_clusters=2, random_state=0)
