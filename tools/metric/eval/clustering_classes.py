@@ -60,7 +60,7 @@ def extract(imgpaths, model, pool_layer, use_norm):
     if torch.cuda.is_available():
         input_data = input_data.cuda()
     fea = model(input_data, targets=None)
-    fea = pool_layer(fea)
+    # fea = pool_layer(fea)
     fea = fea.squeeze()
     if use_norm:
         fea = F.normalize(fea, p=2, dim=1)
