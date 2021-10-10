@@ -82,6 +82,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
             embeddings.append(embedding)
         embeddings = np.array(embeddings)
 
+        print(embeddings.shape)
         if use_norm:
             embeddings = np.linalg.norm(embeddings, axis=1, ord=2)
 
