@@ -63,7 +63,7 @@ def extract(imgpath, model):
     return embedding
 
 
-def main(model_path, output_dir, image_root):
+def main(model_path, output_dir, image_root, use_pca):
     model = builders.MetricModel()
     print(model)
     load_checkpoint(model_path, model)
@@ -88,19 +88,23 @@ def main(model_path, output_dir, image_root):
         #     cur_output_dir = os.path.join(output_dir, os.path.basename(class_dir), "{}".format(label))
         #     os.makedirs(cur_output_dir, exist_ok=True)
         #     shutil.copy(image_files[j], cur_output_dir)
+        if use_pca:
+            pca = PCA(n_components=2)
+            embeddings = pca.fit_transform(embeddings)
 
-        pca = PCA(n_components=2)
-        pca_embeddings = pca.fit_transform(embeddings)
-
-        kmeans.fit(pca_embeddings)
+        kmeans.fit(embeddings)
         for j, label in enumerate(kmeans.labels_):
             cur_output_dir = os.path.join(output_dir, os.path.basename(class_dir), "{}".format(label))
             os.makedirs(cur_output_dir, exist_ok=True)
             shutil.copy(image_files[j], cur_output_dir)
 
+        if not use_pca:
+            pca = PCA(n_components=2)
+            embeddings = pca.fit_transform(embeddings)
+
         colormap = np.array(['r', 'b'])
         plt.figure()
-        plt.scatter(pca_embeddings[:, 0], pca_embeddings[:, 1],
+        plt.scatter(embeddings[:, 0], embeddings[:, 1],
                     c=colormap[kmeans.labels_],
                     edgecolor='none', alpha=0.5)
         plt.xlabel('component 1')
@@ -149,4 +153,4 @@ if __name__ == '__main__':
     args = config.load_cfg_and_args("Extract feature.")
     config.assert_and_infer_cfg()
     cfg.freeze()
-    main(cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR, args.image_root)
+    main(cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR, args.image_root, args.use_pca)
