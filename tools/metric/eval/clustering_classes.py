@@ -84,7 +84,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
 
         print(embeddings.shape)
         if use_norm:
-            embeddings = np.linalg.norm(embeddings, axis=1, ord=2)
+            embeddings = np.linalg.norm(embeddings, axis=0, ord=2)
 
         print(embeddings.shape)
         kmeans = KMeans(n_clusters=2, random_state=0)
