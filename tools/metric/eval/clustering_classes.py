@@ -130,7 +130,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
             pca = PCA(n_components=2)
             embeddings = pca.fit_transform(embeddings)
 
-        colormap = np.array(['r', 'b'])
+        colormap = np.array(['r', 'b', 'g'])
         plt.figure()
         plt.scatter(embeddings[:, 0], embeddings[:, 1],
                     c=colormap[kmeans.labels_],
