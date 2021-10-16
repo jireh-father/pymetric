@@ -154,7 +154,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
                     embeddings = pca.fit_transform(embeddings)
 
                 if key in ["GaussianMixture", "BayesianGaussianMixture"]:
-                    labels = clustered.fit_predict()
+                    labels = clustered.fit_predict(embeddings)
                 elif key in ["SpectralBiclustering", "SpectralCoclustering"]:
                     clustered.fit(embeddings)
                     labels = clustered.row_labels_
