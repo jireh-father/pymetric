@@ -137,6 +137,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
         print(embeddings.shape)
 
         for j, clst in enumerate(cluster_algos):
+            print(j, len(cluster_algos), clst.__name__)
             try:
                 if isinstance(clst, cluster.AffinityPropagation):
                     clustered = clst(random_state=random_state)
