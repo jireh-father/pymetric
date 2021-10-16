@@ -115,7 +115,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
         df.to_excel(cdist_exlfile)
 
         print(embeddings.shape)
-        kmeans = KMeans(n_clusters=2, random_state=0)
+        kmeans = KMeans(n_clusters=3, random_state=0)
         if use_pca:
             pca = PCA(n_components=2)
             embeddings = pca.fit_transform(embeddings)
