@@ -111,6 +111,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
         cdist = distance.cdist(embeddings, embeddings, 'euclidean')
         cdist_exlfile = os.path.join(output_dir, "{}.xlsx".format(os.path.basename(class_dir)))
         df = pd.DataFrame(cdist, columns=[os.path.basename(f).split("_")[-1].split(".")[0] for f in image_files])
+        df = df.set_index(df.columns)
         df.to_excel(cdist_exlfile)
 
         print(embeddings.shape)
