@@ -140,7 +140,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
 
             print(j, len(cluster_algos), key)
             try:
-                if key == "AffinityPropagation":
+                if key in ["AffinityPropagation", "GaussianMixture", "BayesianGaussianMixture"]:
                     clustered = cluster_algos[key](random_state=random_state)
                 elif key in ["MeanShift", "DBSCAN", "OPTICS"]:
                     clustered = cluster_algos[key]()
@@ -155,6 +155,9 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
 
                 if key in ["GaussianMixture", "BayesianGaussianMixture"]:
                     labels = clustered.fit_predict()
+                elif key in ["SpectralBiclustering", "SpectralCoclustering"]:
+                    clustered.fit(embeddings)
+                    labels = clustered.row_labels_
                 else:
                     clustered.fit(embeddings)
                     labels = clustered.labels_
