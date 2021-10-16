@@ -92,7 +92,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
     model.eval()
 
     class_dirs = glob.glob(os.path.join(image_root, "*"))
-
+    os.makedirs(output_dir, exist_ok=True)
     for i, class_dir in enumerate(class_dirs):
         print(i, class_dir)
         image_files = glob.glob(os.path.join(class_dir, '*'))
