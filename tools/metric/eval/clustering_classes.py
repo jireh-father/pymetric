@@ -18,7 +18,8 @@ from sklearn.decomposition import PCA
 from torch import nn
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
-
+import pandas as pd
+from scipy.spatial import distance
 _MEAN = [0.406, 0.456, 0.485]
 _SD = [0.225, 0.224, 0.229]
 
@@ -93,7 +94,9 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
     class_dirs = glob.glob(os.path.join(image_root, "*"))
 
     for i, class_dir in enumerate(class_dirs):
+        print(i, class_dir)
         image_files = glob.glob(os.path.join(class_dir, '*'))
+        image_files.sort()
         # embeddings = []
         # for j, image_file in enumerate(image_files):
         #     print(i, len(class_dirs), j, len(image_files), class_dir, image_file)
@@ -105,6 +108,10 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
         # print(embeddings.shape)
         # if use_norm:
         #     embeddings = np.linalg.norm(embeddings, ord=2)
+        cdist = distance.cdist(embeddings, embeddings, 'euclidean')
+        cdist_exlfile = os.path.join(output_dir, "cdist_{}.xlsx".format(os.path.basename(class_dir)))
+        df = pd.DataFrame(cdist, columns=[os.path.basename(f) for f in image_files])
+        df.to_excel(cdist_exlfile)
 
         print(embeddings.shape)
         kmeans = KMeans(n_clusters=2, random_state=0)
