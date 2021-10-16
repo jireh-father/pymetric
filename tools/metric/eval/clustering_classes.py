@@ -155,7 +155,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
                     pca = PCA(n_components=num_pca_comps, random_state=random_state)
                     embeddings = pca.fit_transform(embeddings)
 
-                if isinstance(clst, cluster.GaussianMixture) or isinstance(clst, cluster.BayesianGaussianMixture):
+                if isinstance(clst, mixture.GaussianMixture) or isinstance(clst, mixture.BayesianGaussianMixture):
                     labels = clustered.fit_predict()
                 else:
                     clustered.fit(embeddings)
