@@ -85,22 +85,22 @@ def extract(imgpaths, model, pool_layer, use_norm):
 #     embedding = to_numpy(fea.squeeze())
 #     # print("fea_shape: ", embedding.shape)
 #     return embedding
-cluster_algos = [
-    cluster.KMeans,
-    cluster.SpectralClustering,
-    cluster.MeanShift,
-    cluster.AffinityPropagation,
-    cluster.AgglomerativeClustering,
-    cluster.FeatureAgglomeration,
-    cluster.MiniBatchKMeans,
-    cluster.DBSCAN,
-    cluster.OPTICS,
-    cluster.SpectralBiclustering,
-    cluster.SpectralCoclustering,
-    cluster.Birch,
-    mixture.GaussianMixture,
-    mixture.BayesianGaussianMixture
-]
+cluster_algos = {
+    "KMeans": cluster.KMeans,
+    "SpectralClustering": cluster.SpectralClustering,
+    "MeanShift": cluster.MeanShift,
+    "AffinityPropagation": cluster.AffinityPropagation,
+    "AgglomerativeClustering": cluster.AgglomerativeClustering,
+    "FeatureAgglomeration": cluster.FeatureAgglomeration,
+    "MiniBatchKMeans": cluster.MiniBatchKMeans,
+    "DBSCAN": cluster.DBSCAN,
+    "OPTICS": cluster.OPTICS,
+    "SpectralBiclustering": cluster.SpectralBiclustering,
+    "SpectralCoclustering": cluster.SpectralCoclustering,
+    "Birch": cluster.Birch,
+    "GaussianMixture": mixture.GaussianMixture,
+    "BayesianGaussianMixture": mixture.BayesianGaussianMixture
+}
 
 
 def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_clusters, num_pca_comps, random_state):
@@ -136,26 +136,24 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
 
         print(embeddings.shape)
 
-        for j, clst in enumerate(cluster_algos):
-            print(j, len(cluster_algos), clst.__name__)
+        for j, key in enumerate(cluster_algos):
+
+            print(j, len(cluster_algos), key)
             try:
-                if isinstance(clst, cluster.AffinityPropagation):
-                    clustered = clst(random_state=random_state)
-                elif isinstance(clst, cluster.MeanShift) or isinstance(clst, cluster.DBSCAN) or isinstance(clst,
-                                                                                                           cluster.OPTICS):
-                    clustered = clst()
-                elif isinstance(clst, cluster.AgglomerativeClustering) or isinstance(clst,
-                                                                                     cluster.FeatureAgglomeration) or isinstance(
-                        clst, cluster.Birch):
-                    clustered = clst(n_clusters=num_clusters)
+                if key == "AffinityPropagation":
+                    clustered = cluster_algos[key](random_state=random_state)
+                elif key in ["MeanShift", "DBSCAN", "OPTICS"]:
+                    clustered = cluster_algos[key]()
+                elif key in ["AgglomerativeClustering", "FeatureAgglomeration", "Birch"]:
+                    clustered = cluster_algos[key](n_clusters=num_clusters)
                 else:
-                    clustered = clst(n_clusters=num_clusters, random_state=random_state)
+                    clustered = cluster_algos[key](n_clusters=num_clusters, random_state=random_state)
 
                 if use_pca:
                     pca = PCA(n_components=num_pca_comps, random_state=random_state)
                     embeddings = pca.fit_transform(embeddings)
 
-                if isinstance(clst, mixture.GaussianMixture) or isinstance(clst, mixture.BayesianGaussianMixture):
+                if key in ["GaussianMixture", "BayesianGaussianMixture"]:
                     labels = clustered.fit_predict()
                 else:
                     clustered.fit(embeddings)
@@ -164,7 +162,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
                 # kmeans.fit(embeddings)
                 for j, label in enumerate(labels):
                     cur_output_dir = os.path.join(output_dir,
-                                                  "{}_{}".format(os.path.basename(class_dir), clst.__name__),
+                                                  "{}_{}".format(os.path.basename(class_dir), key),
                                                   "{}".format(label))
                     os.makedirs(cur_output_dir, exist_ok=True)
                     shutil.copy(image_files[j], cur_output_dir)
@@ -180,7 +178,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
                 plt.ylabel('component 2')
                 plt.colorbar()
 
-                output_file = os.path.join(output_dir, "{}_{}.png".format(os.path.basename(class_dir), clst.__name__))
+                output_file = os.path.join(output_dir, "{}_{}.png".format(os.path.basename(class_dir), key.__name__))
                 plt.savefig(output_file)
             except:
                 import traceback
