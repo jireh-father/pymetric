@@ -109,8 +109,8 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
         # if use_norm:
         #     embeddings = np.linalg.norm(embeddings, ord=2)
         cdist = distance.cdist(embeddings, embeddings, 'euclidean')
-        cdist_exlfile = os.path.join(output_dir, "cdist_{}.xlsx".format(os.path.basename(class_dir)))
-        df = pd.DataFrame(cdist, columns=[os.path.basename(f) for f in image_files])
+        cdist_exlfile = os.path.join(output_dir, "{}.xlsx".format(os.path.basename(class_dir)))
+        df = pd.DataFrame(cdist, columns=[os.path.basename(f).split("_")[-1].split(".")[0] for f in image_files])
         df.to_excel(cdist_exlfile)
 
         print(embeddings.shape)
