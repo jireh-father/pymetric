@@ -457,6 +457,9 @@ def load_cfg_and_args(description="Config file options."):
     parser.add_argument("--use_pca", dest="use_pca", action='store_true', default=False)
     parser.add_argument("--use_norm", action='store_true', default=False)
     parser.add_argument("--pool", type=str, default='maxpool')
+    parser.add_argument("--num_clusters", type=int, default=2)
+    parser.add_argument("--num_pca_comps", type=int, default=2)
+    parser.add_argument("--random_state", type=int, default=0)
     help_s = "See pycls/core/config.py for all options"
 
     parser.add_argument("opts", help=help_s, default=None, nargs=argparse.REMAINDER)

@@ -12,7 +12,9 @@ from metric.core.config import cfg
 from linear_head import LinearHead
 import glob
 from metric.modeling.layers import GeneralizedMeanPoolingP
-from sklearn.cluster import KMeans
+from sklearn import cluster
+from sklearn import mixture
+# .cluster import KMeans, Gaussian mixtures
 import shutil
 from sklearn.decomposition import PCA
 from torch import nn
@@ -20,9 +22,9 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 import pandas as pd
 from scipy.spatial import distance
+
 _MEAN = [0.406, 0.456, 0.485]
 _SD = [0.225, 0.224, 0.229]
-
 
 
 class MetricModel(torch.nn.Module):
@@ -69,6 +71,8 @@ def extract(imgpaths, model, pool_layer, use_norm):
     # print("fea_shape: ", embedding.shape)
 
     return embeddings
+
+
 #     im = cv2.imread(imgpath)
 #     im = im.astype(np.float32, copy=False)
 #     im = preprocess(im)
@@ -81,9 +85,25 @@ def extract(imgpaths, model, pool_layer, use_norm):
 #     embedding = to_numpy(fea.squeeze())
 #     # print("fea_shape: ", embedding.shape)
 #     return embedding
+cluster_algos = [
+    cluster.KMeans,
+    cluster.SpectralClustering,
+    cluster.MeanShift,
+    cluster.AffinityPropagation,
+    cluster.AgglomerativeClustering,
+    cluster.FeatureAgglomeration,
+    cluster.MiniBatchKMeans,
+    cluster.DBSCAN,
+    cluster.OPTICS,
+    cluster.SpectralBiclustering,
+    cluster.SpectralCoclustering,
+    cluster.Birch,
+    mixture.GaussianMixture,
+    mixture.BayesianGaussianMixture
+]
 
 
-def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
+def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_clusters, num_pca_comps, random_state):
     model = builders.MetricModel()
     print(model)
     load_checkpoint(model_path, model)
@@ -115,32 +135,56 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm):
         df.to_excel(cdist_exlfile)
 
         print(embeddings.shape)
-        kmeans = KMeans(n_clusters=3, random_state=0)
-        if use_pca:
-            pca = PCA(n_components=2)
-            embeddings = pca.fit_transform(embeddings)
 
-        kmeans.fit(embeddings)
-        for j, label in enumerate(kmeans.labels_):
-            cur_output_dir = os.path.join(output_dir, os.path.basename(class_dir), "{}".format(label))
-            os.makedirs(cur_output_dir, exist_ok=True)
-            shutil.copy(image_files[j], cur_output_dir)
+        for j, clst in enumerate(cluster_algos):
+            try:
+                if isinstance(clst, cluster.AffinityPropagation):
+                    clustered = clst(random_state=random_state)
+                elif isinstance(clst, cluster.MeanShift) or isinstance(clst, cluster.DBSCAN) or isinstance(clst,
+                                                                                                           cluster.OPTICS):
+                    clustered = clst()
+                elif isinstance(clst, cluster.AgglomerativeClustering) or isinstance(clst,
+                                                                                     cluster.FeatureAgglomeration) or isinstance(
+                        clst, cluster.Birch):
+                    clustered = clst(n_clusters=num_clusters)
+                else:
+                    clustered = clst(n_clusters=num_clusters, random_state=random_state)
 
-        if not use_pca:
-            pca = PCA(n_components=2)
-            embeddings = pca.fit_transform(embeddings)
+                if use_pca:
+                    pca = PCA(n_components=num_pca_comps, random_state=random_state)
+                    embeddings = pca.fit_transform(embeddings)
 
-        colormap = np.array(['r', 'b', 'g'])
-        plt.figure()
-        plt.scatter(embeddings[:, 0], embeddings[:, 1],
-                    c=colormap[kmeans.labels_],
-                    edgecolor='none', alpha=0.5)
-        plt.xlabel('component 1')
-        plt.ylabel('component 2')
-        plt.colorbar()
+                if isinstance(clst, cluster.GaussianMixture) or isinstance(clst, cluster.BayesianGaussianMixture):
+                    labels = clustered.fit_predict()
+                else:
+                    clustered.fit(embeddings)
+                    labels = clustered.labels_
 
-        output_file = os.path.join(output_dir, "{}.png".format(os.path.basename(class_dir)))
-        plt.savefig(output_file)
+                # kmeans.fit(embeddings)
+                for j, label in enumerate(labels):
+                    cur_output_dir = os.path.join(output_dir,
+                                                  "{}_{}".format(os.path.basename(class_dir), clst.__name__),
+                                                  "{}".format(label))
+                    os.makedirs(cur_output_dir, exist_ok=True)
+                    shutil.copy(image_files[j], cur_output_dir)
+
+                if not use_pca:
+                    pca = PCA(n_components=2, random_state=random_state)
+                    embeddings = pca.fit_transform(embeddings)
+
+                plt.figure()
+                plt.scatter(embeddings[:, 0], embeddings[:, 1],
+                            edgecolor='none', alpha=0.5)
+                plt.xlabel('component 1')
+                plt.ylabel('component 2')
+                plt.colorbar()
+
+                output_file = os.path.join(output_dir, "{}_{}.png".format(os.path.basename(class_dir), clst.__name__))
+                plt.savefig(output_file)
+            except:
+                import traceback
+                traceback.print_exc()
+
     print("done")
 
 
@@ -187,4 +231,7 @@ if __name__ == '__main__':
     else:
         pool_layer = GeneralizedMeanPoolingP()
     pool_layer.cuda()
-    main(cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR, args.image_root, args.use_pca, pool_layer,args.use_norm)
+    main(cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR, args.image_root, args.use_pca, pool_layer, args.use_norm,
+         args.num_clusters,
+         args.num_pca_comps,
+         args.random_state)
