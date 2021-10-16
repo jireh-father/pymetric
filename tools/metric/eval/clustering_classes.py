@@ -178,7 +178,7 @@ def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_
                 plt.ylabel('component 2')
                 plt.colorbar()
 
-                output_file = os.path.join(output_dir, "{}_{}.png".format(os.path.basename(class_dir), key.__name__))
+                output_file = os.path.join(output_dir, "{}_{}.png".format(os.path.basename(class_dir), key))
                 plt.savefig(output_file)
             except:
                 import traceback
