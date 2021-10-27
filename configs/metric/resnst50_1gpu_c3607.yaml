@@ -28,7 +28,7 @@ TRAIN:
   SPLIT: train
   BATCH_SIZE: 128
   IM_SIZE: 512
-  EVAL_PERIOD: 10
+  EVAL_PERIOD: 1
 TEST:
   DATASET: plant
   SPLIT: val
