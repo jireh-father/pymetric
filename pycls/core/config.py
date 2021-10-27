@@ -282,6 +282,8 @@ _C.TEST.IM_SIZE = 256
 # Weights to use for testing
 _C.TEST.WEIGHTS = ""
 
+_C.TEST.MAX_POSITIVE_CNT = 30000
+
 
 # ------------------------------------------------------------------------------------ #
 # Common train/test data loader options
