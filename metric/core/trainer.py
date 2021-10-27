@@ -32,6 +32,7 @@ import torch
 from metric.core.config import cfg
 from torch.utils.data import Dataset
 from PIL import Image, ImageFile
+from metric.datasets.loader import _DATA_DIR
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 import random
@@ -277,7 +278,7 @@ def train_model():
     # Create data loaders and meters
     train_loader = loader.construct_train_loader()
     # test_loader = loader.construct_test_loader()
-    _DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+
     val_img_dir = os.path.join(_DATA_DIR, cfg.TEST.DATASET, cfg.TEST.SPLIT)
     val_dataloader, common_val_issame = get_val(val_img_dir,
                                                 cfg.TEST.MAX_POSITIVE_CNT,
