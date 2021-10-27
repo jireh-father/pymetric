@@ -30,9 +30,8 @@ import metric.core.optimizer as optim
 import metric.datasets.loader as loader
 import torch
 from metric.core.config import cfg
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from PIL import Image, ImageFile
-from torchvision import transforms as trans
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 import random
@@ -280,11 +279,11 @@ def train_model():
     # test_loader = loader.construct_test_loader()
     _DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
     val_img_dir = os.path.join(_DATA_DIR, cfg.TEST.DATASET, cfg.TEST.SPLIT)
-    val_dataloader, common_val_issame = get_common_val_data(val_img_dir,
-                                                            cfg.TEST.MAX_POSITIVE_CNT,
-                                                            cfg.TEST.BATCH_SIZE,
-                                                            cfg.DATA_LOADER.PIN_MEMORY,
-                                                            cfg.DATA_LOADER.NUM_WORKERS)
+    val_dataloader, common_val_issame = get_val(val_img_dir,
+                                                cfg.TEST.MAX_POSITIVE_CNT,
+                                                cfg.TEST.BATCH_SIZE,
+                                                cfg.DATA_LOADER.PIN_MEMORY,
+                                                cfg.DATA_LOADER.NUM_WORKERS)
 
     train_meter = meters.TrainMeter(len(train_loader))
     # test_meter = meters.TestMeter(len(test_loader))
@@ -310,7 +309,7 @@ def train_model():
             # test_epoch(test_loader, model, test_meter, cur_epoch)
 
 
-def get_common_val_data(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
+def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
     class ValDataset(Dataset):
         """__init__ and __len__ functions are the same as in TorchvisionDataset"""
 
@@ -353,7 +352,7 @@ def get_common_val_data(data_path, max_positive_cnt, batch_size, pin_memory, num
 
     import glob
     import os
-
+    print("val data path", data_path)
     label_dirs = glob.glob(os.path.join(data_path, "*"))
     total_positive_cnt = 0
     label_files_list = []
