@@ -178,9 +178,9 @@ def validate(model, val_dataloader, val_issame):
     model.eval()
     idx = 0
     embeddings = np.zeros([len(val_dataloader.dataset), cfg.MODEL.HEADS.REDUCTION_DIM])
-
+    print("extracting embedding")
     with torch.no_grad():
-        for batch in tqdm(iter(val_dataloader)):
+        for batch in iter(val_dataloader):
             imgs = batch
             # tmp_embed, _ = self.model(imgs.to(conf.device))
             # tmp_embed = model(imgs.to('cuda'))
