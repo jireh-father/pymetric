@@ -14,7 +14,7 @@ import tqdm
 import traceback
 import random
 
-plt.switch_backend('agg')
+# plt.switch_backend('agg')
 import io
 import cv2
 import os
@@ -355,7 +355,6 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
             except:
                 traceback.print_exc()
                 print("error file", file)
-                os.unlink(file)
 
                 return None
 
