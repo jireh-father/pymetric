@@ -416,6 +416,7 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
     print("val negative cnt", len(negative_files))
 
     from torch.utils.data.distributed import DistributedSampler
+    print("val len", len(positive_files + negative_files))
     sampler = DistributedSampler(ValDataset(positive_files + negative_files)) if cfg.NUM_GPUS > 1 else None
     # Create a loader
     loader = torch.utils.data.DataLoader(
