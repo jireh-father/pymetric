@@ -187,7 +187,7 @@ def evaluate(embeddings, actual_issame):
     thresholds = np.arange(0, 4, 0.01)
     embeddings1 = embeddings[0::2]
     embeddings2 = embeddings[1::2]
-    tpr, fpr, accuracy, best_thresholds = calculate_roc(thresholds, embeddings1, embeddings2, np.asarray(actual_issame))
+    calculate_roc(thresholds, embeddings1, embeddings2, np.asarray(actual_issame))
 
 
 def calculate_roc(thresholds, embeddings1, embeddings2, actual_issame):
