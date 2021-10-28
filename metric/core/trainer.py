@@ -292,22 +292,26 @@ def train_model():
     # if start_epoch == 0 and cfg.PREC_TIME.NUM_ITER > 0:
     # benchmark.compute_time_full(model, loss_fun, train_loader, test_loader)
     # Perform the training loop
+
     logger.info("Start epoch: {}".format(start_epoch + 1))
-    for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
-        # Train for one epoch
-        train_epoch(train_loader, model, loss_fun, optimizer, train_meter, cur_epoch)
-        # Compute precise BN stats
-        if cfg.BN.USE_PRECISE_STATS:
-            net.compute_precise_bn_stats(model, train_loader)
-        # Save a checkpoint
-        if (cur_epoch + 1) % cfg.TRAIN.CHECKPOINT_PERIOD == 0:
-            checkpoint_file = checkpoint.save_checkpoint(model, optimizer, cur_epoch)
-            logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
-        # Evaluate the model
-        next_epoch = cur_epoch + 1
-        if next_epoch % cfg.TRAIN.EVAL_PERIOD == 0 or next_epoch == cfg.OPTIM.MAX_EPOCH:
-            validate(model, val_dataloader, common_val_issame)
-            # test_epoch(test_loader, model, test_meter, cur_epoch)
+    if cfg.TRAIN.OFF:
+        validate(model, val_dataloader, common_val_issame)
+    else:
+        for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
+            # Train for one epoch
+            train_epoch(train_loader, model, loss_fun, optimizer, train_meter, cur_epoch)
+            # Compute precise BN stats
+            if cfg.BN.USE_PRECISE_STATS:
+                net.compute_precise_bn_stats(model, train_loader)
+            # Save a checkpoint
+            if (cur_epoch + 1) % cfg.TRAIN.CHECKPOINT_PERIOD == 0:
+                checkpoint_file = checkpoint.save_checkpoint(model, optimizer, cur_epoch)
+                logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
+            # Evaluate the model
+            next_epoch = cur_epoch + 1
+            if next_epoch % cfg.TRAIN.EVAL_PERIOD == 0 or next_epoch == cfg.OPTIM.MAX_EPOCH:
+                validate(model, val_dataloader, common_val_issame)
+                # test_epoch(test_loader, model, test_meter, cur_epoch)
 
 
 def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
@@ -345,7 +349,9 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
                 tuple: (sample, target) where target is class_index of the target class.
             """
             file = self.files[index]
+            print("loading image file", file)
             im = cv2.imread(file)
+            print(im.shape)
             im = im.astype(np.float32, copy=False)
 
             return self._prepare_im(im)
