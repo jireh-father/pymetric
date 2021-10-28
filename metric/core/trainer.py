@@ -316,6 +316,8 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
 
         def __init__(self, files, transform=None):
             self.files = files
+            print("dataset size", len(self.files))
+            print("first file", self.files[0])
             self.transform = transform
 
         def _prepare_im(self, im):
