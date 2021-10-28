@@ -191,7 +191,7 @@ def validate(model, val_dataloader, val_issame):
             fea = fea.squeeze()
             # if use_norm:
             #     fea = F.normalize(fea, p=2, dim=1)
-
+            print(fea.shape)
             embeddings[idx:idx + len(imgs)] = to_numpy(fea.squeeze())
 
             idx += len(imgs)
@@ -349,11 +349,7 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
                 tuple: (sample, target) where target is class_index of the target class.
             """
             file = self.files[index]
-            try:
-                im = cv2.imread(file)
-            except:
-                traceback.print_exc()
-                return self.__getitem__(random.choice(range(len(self.files))))
+            im = cv2.imread(file)
             im = im.astype(np.float32, copy=False)
 
             return self._prepare_im(im)
