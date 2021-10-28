@@ -6,13 +6,12 @@
 # LICENSE file in the root directory of this source tree.
 
 """Tools for training and testing a model."""
-from sklearn.model_selection import KFold
-from sklearn.decomposition import PCA
-import sklearn
-import matplotlib.pyplot as plt
-import tqdm
+# from sklearn.model_selection import KFold
+# from sklearn.decomposition import PCA
+# import sklearn
+# import tqdm
 import traceback
-import random
+# import random
 
 # plt.switch_backend('agg')
 import io
@@ -20,7 +19,7 @@ import cv2
 import os
 import metric.datasets.transforms as transforms
 import numpy as np
-import metric.core.benchmark as benchmark
+# import metric.core.benchmark as benchmark
 import metric.core.builders as builders
 import metric.core.checkpoint as checkpoint
 import metric.core.config as config
@@ -157,19 +156,6 @@ def test_epoch(test_loader, model, test_meter, cur_epoch):
     test_meter.log_epoch_stats(cur_epoch)
     test_meter.reset()
 
-
-def gen_plot(fpr, tpr):
-    """Create a pyplot plot and save to buffer."""
-    plt.figure()
-    plt.xlabel("FPR", fontsize=14)
-    plt.ylabel("TPR", fontsize=14)
-    plt.title("ROC Curve", fontsize=14)
-    plot = plt.plot(fpr, tpr, linewidth=2)
-    buf = io.BytesIO()
-    plt.savefig(buf, format='jpeg')
-    buf.seek(0)
-    plt.close()
-    return buf
 
 
 def to_numpy(tensor):
