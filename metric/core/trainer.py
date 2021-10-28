@@ -355,6 +355,8 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
             except:
                 traceback.print_exc()
                 print("error file", file)
+                os.unlink(file)
+
                 return None
 
             im = im.astype(np.float32, copy=False)
