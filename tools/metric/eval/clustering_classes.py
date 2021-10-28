@@ -25,7 +25,7 @@ from scipy.spatial import distance
 
 _MEAN = [0.406, 0.456, 0.485]
 _SD = [0.225, 0.224, 0.229]
-
+_EIG_VALS = np.array([[0.2175, 0.0188, 0.0045]])
 
 class MetricModel(torch.nn.Module):
     def __init__(self):

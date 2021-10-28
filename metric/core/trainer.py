@@ -318,8 +318,6 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
             im = im.transpose([2, 0, 1])
             # [0, 255] -> [0, 1]
             im = im / 255.0
-            # PCA jitter
-            im = transforms.lighting(im, 0.1, _EIG_VALS, _EIG_VECS)
             # Color normalization
             im = transforms.color_norm(im, _MEAN, _SD)
             return im
