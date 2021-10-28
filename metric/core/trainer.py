@@ -11,6 +11,8 @@ from sklearn.decomposition import PCA
 import sklearn
 import matplotlib.pyplot as plt
 import tqdm
+import traceback
+import random
 
 plt.switch_backend('agg')
 import io
@@ -320,8 +322,6 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
 
         def __init__(self, files, transform=None):
             self.files = files
-            print("dataset size", len(self.files))
-            print("first file", self.files[0])
             self.transform = transform
 
         def _prepare_im(self, im):
@@ -349,9 +349,11 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
                 tuple: (sample, target) where target is class_index of the target class.
             """
             file = self.files[index]
-            print("loading image file", file)
-            im = cv2.imread(file)
-            print(im.shape)
+            try:
+                im = cv2.imread(file)
+            except:
+                traceback.print_exc()
+                return self.__getitem__(random.choice(range(len(self.files))))
             im = im.astype(np.float32, copy=False)
 
             return self._prepare_im(im)
