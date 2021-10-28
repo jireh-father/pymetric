@@ -263,6 +263,7 @@ _C.TRAIN.AUTO_RESUME = True
 # Weights to start training from
 _C.TRAIN.WEIGHTS = ""
 
+_C.TRAIN.OFF = False
 
 # ------------------------------------------------------------------------------------ #
 # Testing options
