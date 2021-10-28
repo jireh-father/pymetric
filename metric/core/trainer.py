@@ -191,7 +191,6 @@ def validate(model, val_dataloader, val_issame):
             fea = fea.squeeze()
             # if use_norm:
             #     fea = F.normalize(fea, p=2, dim=1)
-            print(fea.shape)
             embeddings[idx:idx + len(imgs)] = to_numpy(fea.squeeze())
 
             idx += len(imgs)
