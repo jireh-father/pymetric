@@ -17,6 +17,7 @@ import pycls.datasets.transforms as transforms
 import torch.utils.data
 from pycls.core.config import cfg
 import torchvision
+from PIL import Image
 
 logger = logging.get_logger(__name__)
 
@@ -82,7 +83,11 @@ class DataSet(torchvision.datasets.folder.ImageFolder):
         # Load the image
         try:
             path, target = self.samples[index]
-            im = cv2.imread(path)
+            im = Image.open(path)
+            if im.mode != "RGB":
+                im = im.convert("RGB")
+            im = np.array(im)
+            # im = cv2.imread(path)
             im = im.astype(np.float32, copy=False)
         except:
             print('error: ', path)
