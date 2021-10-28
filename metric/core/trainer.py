@@ -157,7 +157,6 @@ def test_epoch(test_loader, model, test_meter, cur_epoch):
     test_meter.reset()
 
 
-
 def to_numpy(tensor):
     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
@@ -342,6 +341,10 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
                 traceback.print_exc()
                 print("error file", file)
 
+                return None
+
+            if im is None:
+                print(file)
                 return None
 
             im = im.astype(np.float32, copy=False)

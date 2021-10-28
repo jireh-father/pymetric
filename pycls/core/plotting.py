@@ -8,7 +8,7 @@
 """Plotting functions."""
 
 import colorlover as cl
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 import plotly.offline as offline
 import pycls.core.logging as logging
@@ -113,21 +113,21 @@ def plot_error_curves_plotly(log_files, names, filename, metric="top1_err"):
     offline.plot({"data": data, "layout": layout}, filename=filename)
 
 
-def plot_error_curves_pyplot(log_files, names, filename=None, metric="top1_err"):
-    """Plot error curves using matplotlib.pyplot and save to file."""
-    plot_data = prepare_plot_data(log_files, names, metric)
-    colors = get_plot_colors(len(names))
-    for ind, d in enumerate(plot_data):
-        c, lbl = colors[ind], d["test_label"]
-        plt.plot(d["x_train"], d["y_train"], "--", c=c, alpha=0.8)
-        plt.plot(d["x_test"], d["y_test"], "-", c=c, alpha=0.8, label=lbl)
-    plt.title(metric + " vs. epoch\n[dash=train, solid=test]", fontsize=14)
-    plt.xlabel("epoch", fontsize=14)
-    plt.ylabel(metric, fontsize=14)
-    plt.grid(alpha=0.4)
-    plt.legend()
-    if filename:
-        plt.savefig(filename)
-        plt.clf()
-    else:
-        plt.show()
+# def plot_error_curves_pyplot(log_files, names, filename=None, metric="top1_err"):
+#     """Plot error curves using matplotlib.pyplot and save to file."""
+#     plot_data = prepare_plot_data(log_files, names, metric)
+#     colors = get_plot_colors(len(names))
+#     for ind, d in enumerate(plot_data):
+#         c, lbl = colors[ind], d["test_label"]
+#         plt.plot(d["x_train"], d["y_train"], "--", c=c, alpha=0.8)
+#         plt.plot(d["x_test"], d["y_test"], "-", c=c, alpha=0.8, label=lbl)
+#     plt.title(metric + " vs. epoch\n[dash=train, solid=test]", fontsize=14)
+#     plt.xlabel("epoch", fontsize=14)
+#     plt.ylabel(metric, fontsize=14)
+#     plt.grid(alpha=0.4)
+#     plt.legend()
+#     if filename:
+#         plt.savefig(filename)
+#         plt.clf()
+#     else:
+#         plt.show()
