@@ -349,7 +349,15 @@ def get_val(data_path, max_positive_cnt, batch_size, pin_memory, num_workers):
                 tuple: (sample, target) where target is class_index of the target class.
             """
             file = self.files[index]
-            im = cv2.imread(file)
+            if not os.path.isfile(file):
+                print("no file", file)
+            try:
+                im = cv2.imread(file)
+            except:
+                traceback.print_exc()
+                print("error file", file)
+                return None
+
             im = im.astype(np.float32, copy=False)
 
             return self._prepare_im(im)
