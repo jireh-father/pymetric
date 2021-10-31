@@ -266,12 +266,13 @@ def train_model():
     train_loader = loader.construct_train_loader()
     # test_loader = loader.construct_test_loader()
 
-    val_img_dir = os.path.join(_DATA_DIR, cfg.TEST.DATASET, cfg.TEST.SPLIT)
-    val_dataloader, common_val_issame = get_val(val_img_dir,
-                                                cfg.TEST.MAX_POSITIVE_CNT,
-                                                cfg.TEST.BATCH_SIZE,
-                                                cfg.DATA_LOADER.PIN_MEMORY,
-                                                cfg.DATA_LOADER.NUM_WORKERS)
+    if not cfg.TEST.OFF:
+        val_img_dir = os.path.join(_DATA_DIR, cfg.TEST.DATASET, cfg.TEST.SPLIT)
+        val_dataloader, common_val_issame = get_val(val_img_dir,
+                                                    cfg.TEST.MAX_POSITIVE_CNT,
+                                                    cfg.TEST.BATCH_SIZE,
+                                                    cfg.DATA_LOADER.PIN_MEMORY,
+                                                    cfg.DATA_LOADER.NUM_WORKERS)
 
     train_meter = meters.TrainMeter(len(train_loader))
     # test_meter = meters.TestMeter(len(test_loader))
@@ -281,9 +282,9 @@ def train_model():
     # Perform the training loop
 
     logger.info("Start epoch: {}".format(start_epoch + 1))
-    if cfg.TRAIN.OFF:
+    if cfg.TRAIN.OFF and not cfg.TEST.OFF:
         validate(model, val_dataloader, common_val_issame)
-    else:
+    elif not cfg.TRAIN.OFF:
         for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
             # Train for one epoch
             train_epoch(train_loader, model, loss_fun, optimizer, train_meter, cur_epoch)
@@ -296,7 +297,7 @@ def train_model():
                 logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
             # Evaluate the model
             next_epoch = cur_epoch + 1
-            if next_epoch % cfg.TRAIN.EVAL_PERIOD == 0 or next_epoch == cfg.OPTIM.MAX_EPOCH:
+            if not cfg.TEST.OFF and (next_epoch % cfg.TRAIN.EVAL_PERIOD == 0 or next_epoch == cfg.OPTIM.MAX_EPOCH):
                 validate(model, val_dataloader, common_val_issame)
                 # test_epoch(test_loader, model, test_meter, cur_epoch)
 
