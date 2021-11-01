@@ -308,6 +308,7 @@ _C.TEST.IM_SIZE = 256
 _C.TEST.WEIGHTS = ""
 
 _C.TEST.MAX_POSITIVE_CNT = 30000
+
 _C.TEST.OFF = False
 # ------------------------------------------------------------------------------------ #
 # Common train/test data loader options
@@ -464,6 +465,7 @@ def load_cfg_and_args(description="Config file options."):
     parser.add_argument("--num_clusters", type=int, default=2)
     parser.add_argument("--num_pca_comps", type=int, default=2)
     parser.add_argument("--random_state", type=int, default=0)
+    parser.add_argument("--feature_dir", default=None, type=str)
     help_s = "See pycls/core/config.py for all options"
 
     parser.add_argument("opts", help=help_s, default=None, nargs=argparse.REMAINDER)
