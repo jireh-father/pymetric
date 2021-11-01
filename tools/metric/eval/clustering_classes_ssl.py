@@ -1,57 +1,20 @@
 import os
 import sys
-import cv2
 import numpy as np
 
 import torch
 
 import metric.core.config as config
-import metric.datasets.transforms as transforms
-import metric.core.builders as builders
 from metric.core.config import cfg
-from linear_head import LinearHead
 import glob
-from metric.modeling.layers import GeneralizedMeanPoolingP
 from sklearn import cluster
 from sklearn import mixture
-# .cluster import KMeans, Gaussian mixtures
 import shutil
 from sklearn.decomposition import PCA
-from torch import nn
 import matplotlib.pyplot as plt
-import torch.nn.functional as F
 import pandas as pd
 from scipy.spatial import distance
 from PIL import Image
-
-
-_MEAN = [0.406, 0.456, 0.485]
-_SD = [0.225, 0.224, 0.229]
-_EIG_VALS = np.array([[0.2175, 0.0188, 0.0045]])
-
-
-class MetricModel(torch.nn.Module):
-    def __init__(self):
-        super(MetricModel, self).__init__()
-        self.backbone = builders.build_model()
-        self.head = LinearHead()
-
-    def forward(self, x):
-        features = self.backbone(x)
-        return self.head(features)
-
-
-def preprocess(im):
-    im = transforms.scale(cfg.TEST.IM_SIZE, im)
-    im = transforms.center_crop(cfg.TRAIN.IM_SIZE, im)
-    im = im.transpose([2, 0, 1])
-    im = im / 255.0
-    im = transforms.color_norm(im, _MEAN, _SD)
-    return [im]
-
-
-def to_numpy(tensor):
-    return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
 
 def extract(feature_dir):
@@ -97,13 +60,6 @@ cluster_algos = {
 
 def main(model_path, output_dir, image_root, use_pca, pool_layer, use_norm, num_clusters, num_pca_comps, random_state,
          feature_dir):
-    model = builders.MetricModel()
-    print(model)
-    load_checkpoint(model_path, model)
-    if torch.cuda.is_available():
-        model.cuda()
-    model.eval()
-
     total_embeddings = extract(feature_dir)
 
     embed_idx = 0
@@ -228,12 +184,12 @@ if __name__ == '__main__':
     config.assert_and_infer_cfg()
     cfg.freeze()
 
-    if args.pool == "maxpool":
-        pool_layer = nn.AdaptiveMaxPool2d(1)
-    else:
-        pool_layer = GeneralizedMeanPoolingP()
-    pool_layer.cuda()
-    main(cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR, args.image_root, args.use_pca, pool_layer, args.use_norm,
+    # if args.pool == "maxpool":
+    #     pool_layer = nn.AdaptiveMaxPool2d(1)
+    # else:
+    #     pool_layer = GeneralizedMeanPoolingP()
+    # pool_layer.cuda()
+    main(cfg.INFER.MODEL_WEIGHTS, cfg.INFER.OUTPUT_DIR, args.image_root, args.use_pca, None, args.use_norm,
          args.num_clusters,
          args.num_pca_comps,
          args.random_state,
