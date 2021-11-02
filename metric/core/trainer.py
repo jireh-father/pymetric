@@ -35,6 +35,7 @@ from torch.utils.data import Dataset
 from PIL import Image, ImageFile
 from metric.datasets.loader import _DATA_DIR
 import glob
+import time
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 import random
@@ -163,6 +164,7 @@ def to_numpy(tensor):
 
 
 def validate(model, val_dataloader, val_issame, thr_rng_from, thr_rng_to):
+    start = time.time()
     model.eval()
     idx = 0
     embeddings = np.zeros([len(val_dataloader.dataset), cfg.MODEL.HEADS.REDUCTION_DIM])
@@ -181,6 +183,7 @@ def validate(model, val_dataloader, val_issame, thr_rng_from, thr_rng_to):
 
             idx += len(imgs)
     evaluate(embeddings, val_issame, thr_rng_from, thr_rng_to)
+    print("eval exec time", time.time() - start)
 
 
 def evaluate(embeddings, actual_issame, thr_rng_from, thr_rng_to):
