@@ -310,6 +310,10 @@ _C.TEST.WEIGHTS = ""
 _C.TEST.MAX_POSITIVE_CNT = 30000
 
 _C.TEST.OFF = False
+
+_C.TEST.THR_RNG_FROM = 10
+
+_C.TEST.THR_RNG_TO = 20
 # ------------------------------------------------------------------------------------ #
 # Common train/test data loader options
 # ------------------------------------------------------------------------------------ #

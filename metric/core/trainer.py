@@ -162,7 +162,7 @@ def to_numpy(tensor):
     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
 
-def validate(model, val_dataloader, val_issame):
+def validate(model, val_dataloader, val_issame, thr_rng_from, thr_rng_to):
     model.eval()
     idx = 0
     embeddings = np.zeros([len(val_dataloader.dataset), cfg.MODEL.HEADS.REDUCTION_DIM])
@@ -180,13 +180,13 @@ def validate(model, val_dataloader, val_issame):
             embeddings[idx:idx + len(imgs)] = to_numpy(fea.squeeze())
 
             idx += len(imgs)
-    evaluate(embeddings, val_issame)
+    evaluate(embeddings, val_issame, thr_rng_from, thr_rng_to)
 
 
-def evaluate(embeddings, actual_issame):
+def evaluate(embeddings, actual_issame, thr_rng_from, thr_rng_to):
     # Calculate evaluation metrics
     # thresholds = np.arange(0, 4, 0.01)
-    thresholds = np.arange(10, 20, 0.01)
+    thresholds = np.arange(thr_rng_from, thr_rng_to, 0.01)
     embeddings1 = embeddings[0::2]
     embeddings2 = embeddings[1::2]
     calculate_roc(thresholds, embeddings1, embeddings2, np.asarray(actual_issame))
@@ -301,7 +301,7 @@ def train_model():
         for cp in checkpoints:
             checkpoint.load_checkpoint(cp, model)
             logger.info("Loaded initial weights from: {}".format(cp))
-            validate(model, val_dataloader, common_val_issame)
+            validate(model, val_dataloader, common_val_issame, cfg.TEST.THR_RNG_FROM, cfg.TEST.THR_RNG_TO)
         else:
             logger.info("No checkpoint to load")
     elif not cfg.TRAIN.OFF:
