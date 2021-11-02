@@ -34,6 +34,7 @@ from metric.core.config import cfg
 from torch.utils.data import Dataset
 from PIL import Image, ImageFile
 from metric.datasets.loader import _DATA_DIR
+import glob
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 import random
@@ -254,14 +255,17 @@ def train_model():
     optimizer = optim.construct_optimizer(model)
     # Load checkpoint or initial weights
     start_epoch = 0
-    if cfg.TRAIN.AUTO_RESUME and checkpoint.has_checkpoint():
-        last_checkpoint = checkpoint.get_last_checkpoint()
-        checkpoint_epoch = checkpoint.load_checkpoint(last_checkpoint, model, optimizer)
-        logger.info("Loaded checkpoint from: {}".format(last_checkpoint))
-        start_epoch = checkpoint_epoch + 1
-    elif cfg.TRAIN.WEIGHTS:
-        checkpoint.load_checkpoint(cfg.TRAIN.WEIGHTS, model)
-        logger.info("Loaded initial weights from: {}".format(cfg.TRAIN.WEIGHTS))
+
+    if not cfg.TRAIN.OFF:
+        if cfg.TRAIN.AUTO_RESUME and checkpoint.has_checkpoint():
+            last_checkpoint = checkpoint.get_last_checkpoint()
+            checkpoint_epoch = checkpoint.load_checkpoint(last_checkpoint, model, optimizer)
+            logger.info("Loaded checkpoint from: {}".format(last_checkpoint))
+            start_epoch = checkpoint_epoch + 1
+        elif cfg.TRAIN.WEIGHTS:
+            checkpoint.load_checkpoint(cfg.TRAIN.WEIGHTS, model)
+            logger.info("Loaded initial weights from: {}".format(cfg.TRAIN.WEIGHTS))
+
     # Create data loaders and meters
     train_loader = loader.construct_train_loader()
     # test_loader = loader.construct_test_loader()
@@ -283,7 +287,23 @@ def train_model():
 
     logger.info("Start epoch: {}".format(start_epoch + 1))
     if cfg.TRAIN.OFF and not cfg.TEST.OFF:
-        validate(model, val_dataloader, common_val_issame)
+        checkpoints = []
+        if cfg.TEST.WEIGHTS:
+            weights = cfg.TEST.WEIGHTS.split(",")
+            for w in weights:
+                if os.path.isfile(w):
+                    checkpoints.append(w)
+                else:
+                    checkpoints += glob.glob(w)
+        elif checkpoint.has_checkpoint():
+            last_checkpoint = checkpoint.get_last_checkpoint()
+            checkpoints.append(last_checkpoint)
+        for cp in checkpoints:
+            checkpoint.load_checkpoint(cp, model)
+            logger.info("Loaded initial weights from: {}".format(cp))
+            validate(model, val_dataloader, common_val_issame)
+        else:
+            logger.info("No checkpoint to load")
     elif not cfg.TRAIN.OFF:
         for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
             # Train for one epoch
